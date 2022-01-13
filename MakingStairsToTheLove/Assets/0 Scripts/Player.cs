@@ -112,7 +112,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         else
             Debug.Log("Ups");
     }
-    
+
     IEnumerator MyFixedUpdate()
     {
         while (updating)
@@ -152,6 +152,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         }
     }
 
+    #region Win
     void IWinObserver.WinScenario()
     {
         updating = false;
@@ -159,6 +160,51 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         anim.SetBool("isWalking", false);
     }
 
+    IEnumerator Bricks_EndAlign()
+    {
+        int indexx = 0;
+        float delay = 0.1f;
+        Vector3 startPos = transform.position;
+        Vector3 direction = transform.forward;
+
+        for (int i = bricks.Count - 1; i >= 0; i--)
+        {
+            indexx++;
+            bricks[i].transform.parent = null;
+            bricks[i].transform.DOMove(startPos + indexx * direction * 0.4f, 0.5f);
+            // bricks[i].transform.DOJump(transform.position + indexx * direction * 0.4f, 1, 1, 0.5f);
+
+            yield return new WaitForSeconds(delay);
+        }
+        StartCoroutine(LastRun());
+    }
+    IEnumerator LastRun()
+    {
+        Vector3 targetPos = transform.position;
+        if (bricks.Count > 0)
+        {
+            targetPos = bricks[0].transform.position;
+            anim.SetBool("isWalking", true);
+        }
+        GetComponent<Rigidbody>().isKinematic = true;
+
+        bool a = true;
+        while (a)
+        {
+            if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+            {
+                anim.SetBool("isWalking", false);
+                Observers.Instance.Notify_LevelEndObservers();
+
+                a = false;
+            }
+
+            transform.position += transform.forward * Time.deltaTime * 5;
+
+            yield return null;
+        }
+    }
+    #endregion
 
     void ILoseObserver.LoseScenario()
     {
