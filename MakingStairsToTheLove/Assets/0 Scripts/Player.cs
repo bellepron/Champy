@@ -33,10 +33,12 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
     void ILevelStartObserver.LevelStart()
     {
+        Debug.Log("Again");
         splineFollower.followSpeed = speed;
         anim.SetBool("isWalking", true);
 
         StartCoroutine(MyUpdate());
+        StartCoroutine(MyFixedUpdate());
     }
 
     IEnumerator MyUpdate()
@@ -62,7 +64,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     public void InteractWithBrick(GameObject brick)
     {
         index++;
-        Vector3 offset = new Vector3(0, Mathf.FloorToInt((index - 1) / 3) * 0.3f, ((index - 1) % 3) * -0.82f);
+        Vector3 offset = new Vector3(0, Mathf.FloorToInt((index - 1) / 3) * 0.1f, ((index - 1) % 3) * -0.4f);
         brick.transform.parent = brickBasketTr;
         brick.transform.DOLocalJump(brickBasketTr.localPosition + offset, 2, 1, 0.4f);
         StartCoroutine(DelayedAddToBricks(brick));
@@ -105,7 +107,6 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             lastBrickTr.DOScale(stairScale, 0.1f);
             lastBrickTr.DOMove(transform.position + new Vector3(0, 0.35f, 0), 0.1f);
             // lastBrickTr.localPosition = transform.position + new Vector3(0, 0.35f, 0);
-            Debug.Log(transform.position);
 
             transform.DOLocalMoveY(transform.localPosition.y + 0.35f, 0.09f);
         }
@@ -158,6 +159,8 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         updating = false;
         splineFollower.followSpeed = 0;
         anim.SetBool("isWalking", false);
+
+        StartCoroutine(Bricks_EndAlign());
     }
 
     IEnumerator Bricks_EndAlign()
