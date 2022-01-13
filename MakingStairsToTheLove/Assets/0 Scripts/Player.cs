@@ -113,13 +113,42 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             Debug.Log("Ups");
     }
 
+    private void FixedUpdate()
+    {
+        if (IsOnGround() == true)
+        {
+            anim.SetBool("isFalling", false);
+        }
+        else
+        {
+            if (pressing == false)
+                anim.SetBool("isFalling", true);
+            else
+                anim.SetBool("isFalling", false);
+        }
+    }
+
+    bool IsOnGround()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.6f, layerMask))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     void IWinObserver.WinScenario()
     {
         updating = false;
         splineFollower.followSpeed = 0;
         anim.SetBool("isWalking", false);
     }
- 
+
 
     void ILoseObserver.LoseScenario()
     {
