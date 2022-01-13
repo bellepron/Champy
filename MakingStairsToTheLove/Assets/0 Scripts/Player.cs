@@ -15,6 +15,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     float pushTimer;
     [SerializeField] float pushCd = 0.05f;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] RagdollToggle ragdollToggle;
 
     bool pressing;
     int index;
@@ -33,7 +34,6 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
     void ILevelStartObserver.LevelStart()
     {
-        Debug.Log("Again");
         splineFollower.followSpeed = speed;
         anim.SetBool("isWalking", true);
 
@@ -153,6 +153,28 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         }
     }
 
+    #region Interacts
+    public void InteractWithSpike()
+    {
+        Dead();
+        ScatterBricks();
+    }
+    #endregion
+
+    void Dead()
+    {
+        Stop();
+        ragdollToggle.RagdollActivate(true);
+        ragdollToggle.pelvisRb.AddForce(((transform.forward * -1).normalized + new Vector3(0, 1, 0)) * 100, ForceMode.Impulse);
+
+        Observers.Instance.Notify_LoseObservers();
+    }
+
+    void ScatterBricks()
+    {
+
+    }
+
     #region Win
     void IWinObserver.WinScenario()
     {
@@ -211,12 +233,17 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
     void ILoseObserver.LoseScenario()
     {
-        updating = false;
-        splineFollower.followSpeed = 0;
+        Stop();
     }
 
     void ILevelEndObserver.LevelEnd()
     {
 
+    }
+
+    void Stop()
+    {
+        updating = false;
+        splineFollower.followSpeed = 0;
     }
 }

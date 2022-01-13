@@ -10,15 +10,18 @@ public class RagdollToggle : MonoBehaviour
     protected Collider[] childrenCollider;
     protected Rigidbody[] childrenRigidbody;
     [SerializeField] GameObject pelvis;
+    [HideInInspector] public Rigidbody pelvisRb;
 
     void Awake()
     {
-        animator = GetComponent<Animator>();
-        Rigidbody = GetComponent<Rigidbody>();
-        capsuleCollider = GetComponent<CapsuleCollider>();
+        animator = transform.parent.GetComponent<Animator>();
+        Rigidbody = transform.parent.GetComponent<Rigidbody>();
+        capsuleCollider = transform.parent.GetComponent<CapsuleCollider>();
 
         childrenCollider = pelvis.GetComponentsInChildren<Collider>();
         childrenRigidbody = pelvis.GetComponentsInChildren<Rigidbody>();
+
+        pelvisRb = pelvis.GetComponent<Rigidbody>();
     }
 
     private void Start()
