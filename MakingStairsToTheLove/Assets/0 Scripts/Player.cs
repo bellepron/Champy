@@ -112,8 +112,18 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         else
             Debug.Log("Ups");
     }
+    
+    IEnumerator MyFixedUpdate()
+    {
+        while (updating)
+        {
+            FallAnim();
 
-    private void FixedUpdate()
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    private void FallAnim()
     {
         if (IsOnGround() == true)
         {
