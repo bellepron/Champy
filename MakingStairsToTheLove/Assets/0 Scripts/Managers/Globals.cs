@@ -4,6 +4,6 @@ using UnityEngine;
 
 public static class Globals
 {
-    public static bool isGameStart, isGameFinished;
-    public static int totalPoint, multiplyPoint;
+    public static bool isGameStart, isGameFinished, hasReachTOLover;
+    public static int totalPoint;
 }
