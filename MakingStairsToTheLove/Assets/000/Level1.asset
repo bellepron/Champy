@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   swipeSpeed: 0
-  levelPrefab: {fileID: 5972450422799186594, guid: f57f7bb4e3bd4984a85be47450112784, type: 3}
+  levelPrefab: {fileID: 4911626385030902548, guid: 788eab91ab0266742b950ba1bbb3a0d7, type: 3}
