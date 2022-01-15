@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
+using EZ_Pooling;
 
 public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILoseObserver, ILevelEndObserver
 {
@@ -21,6 +22,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     [SerializeField] RagdollToggle ragdollToggle;
     public Transform dancePoseHand;
     Vector3 brickScale;
+    [SerializeField] Transform brickDestroyParticle;
 
 
     #region Changeable Values
@@ -34,7 +36,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     [Header("Brick Allign")]
     float alignDistX = 0.3f;
     float alignDistZ = 0.3f;
-    float alignInterval = 0.1f;
+    float alignInterval = 0.05f;
     float alignTime = 0.5f;
 
     [Header("End Run")]
@@ -99,6 +101,8 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         brick.transform.parent = brickBasketTr;
         brick.transform.localPosition = offset;
         brick.transform.localEulerAngles = Vector3.zero;
+
+        SoundManager.Instance.Pop();
     }
 
     void UseBrick()
@@ -133,6 +137,8 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             lastBrickTr.transform.eulerAngles = splineFollower.transform.eulerAngles;
 
             transform.DOLocalMoveY(transform.localPosition.y + stairPutingHeigt, stairPuttingTime);
+
+            SoundManager.Instance.Pop();
         }
         else
             Debug.Log("Ups");
@@ -238,11 +244,19 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
         for (int i = bricks.Count - 1; i >= 0; i = i - 2)
         {
-            if (i < 1) break;
+            if (i < 1)
+            {
+                StartCoroutine(DestroyUnusedBricks(i));
+                break;
+            }
 
             indexx++;
 
-            if (indexx > 26) break;
+            if (indexx > 26)
+            {
+                StartCoroutine(DestroyUnusedBricks(i));
+                break;
+            }
 
             BrickAlingMove(bricks[i], -splineF_Right + startPos + indexx * direction * alignDistZ, splineF_Tr.eulerAngles);
             BrickAlingMove(bricks[i - 1], splineF_Right + startPos + indexx * direction * alignDistZ, splineF_Tr.eulerAngles);
@@ -252,6 +266,26 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
         playerDestination = startPos + indexx * direction * 0.3f;
         StartCoroutine(LastRun(alignInterval * (indexx - 1), playerDestination));
+    }
+    IEnumerator DestroyUnusedBricks(int index)
+    {
+        for (int i = index; i >= 0; i = i - 1)
+        {
+            Transform _brickTr = bricks[i].transform;
+            SpawnBrickParticle(_brickTr);
+            Invoke(nameof(DespawnBrickParticle), 0.09f);
+            SoundManager.Instance.Pop();
+            bricks[i].SetActive(false);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+    void SpawnBrickParticle(Transform _brickTr)
+    {
+        EZ_PoolManager.Spawn(brickDestroyParticle, _brickTr.position, _brickTr.rotation);
+    }
+    void DespawnBrickParticle()
+    {
+        EZ_PoolManager.Despawn(brickDestroyParticle);
     }
     void BrickAlingMove(GameObject brick, Vector3 pos, Vector3 eulerAng)
     {

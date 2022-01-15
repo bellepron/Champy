@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class EffectManager : Singleton<EffectManager>
 {
-    [SerializeField] ParticleSystem effect;
+    [SerializeField] GameObject brickDestroy;
 
-    public void BallCollide(Vector3 pos)
+    public void BrickDestroy(Vector3 pos)
     {
-        ParticleSystem eff = Instantiate(effect, pos, Quaternion.identity);
+        GameObject eff = Instantiate(brickDestroy, pos, Quaternion.identity);
     }
 }

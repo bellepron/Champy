@@ -43,8 +43,6 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
         AddObserver();
 
         // Physics.gravity = new Vector3(0, -9.8F, 0);
-
-        // Globals.isLevelEnd = false;
     }
 
     void LevelOperations()
@@ -62,7 +60,6 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
         GameObject _level = Instantiate(levels[currentIndex].levelPrefab, Vector3.zero, Quaternion.identity);
         splineFollower.spline = FindObjectOfType<SplineComputer>();
         playerSpeed = Player.Instance.speed = levels[currentIndex].speed;
-        // InputHandler.Instance.swipeSpeed = levels[currentIndex].swipeSpeed;
     }
     void PreparingPanels()
     {
