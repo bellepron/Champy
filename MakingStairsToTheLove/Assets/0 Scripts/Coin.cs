@@ -8,5 +8,6 @@ public class Coin : MonoBehaviour, IInteractable
     {
         gameObject.SetActive(false);
         PointManager.Instance.PointPopUp(player.transform, 1);
+        SoundManager.Instance.Coin();
     }
 }

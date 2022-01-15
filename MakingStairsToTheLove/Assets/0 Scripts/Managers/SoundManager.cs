@@ -8,6 +8,7 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] AudioClip success;
     [SerializeField] AudioClip fail;
     [SerializeField] AudioClip pop;
+    [SerializeField] AudioClip coin;
 
     bool a;
 
@@ -34,5 +35,10 @@ public class SoundManager : Singleton<SoundManager>
     {
         yield return new WaitForEndOfFrame();
         a = false;
+    }
+
+    public void Coin()
+    {
+        audioSource.PlayOneShot(coin, 0.5f);
     }
 }

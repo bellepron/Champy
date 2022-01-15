@@ -147,7 +147,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 515729}
-  m_LocalRotation: {x: 0.20904867, y: -0.04047711, z: 0.008660632, w: 0.9770288}
+  m_LocalRotation: {x: 0.20904866, y: -0.04047712, z: 0.008660634, w: 0.9770288}
   m_LocalPosition: {x: 0.99, y: 7.1, z: -9.255087}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3877,6 +3877,7 @@ MonoBehaviour:
   success: {fileID: 8300000, guid: 9952ef57e14da9d4ab020cb34361be03, type: 3}
   fail: {fileID: 8300000, guid: 3f6f5728e50eacd4d98b76340b96dc0f, type: 3}
   pop: {fileID: 8300000, guid: 97131bb6c2e8e144b8ad3a0f50eb8f29, type: 3}
+  coin: {fileID: 8300000, guid: b6e569adcc9aded4a85c20a40e6c55a7, type: 3}
 --- !u!1 &829709365
 GameObject:
   m_ObjectHideFlags: 0
