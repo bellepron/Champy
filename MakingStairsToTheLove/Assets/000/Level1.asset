@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb354a2727ffb24b8ac6c53b2108fa6, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
-  speed: 0
-  swipeSpeed: 0
+  speed: 7
   levelPrefab: {fileID: 4911626385030902548, guid: 788eab91ab0266742b950ba1bbb3a0d7, type: 3}

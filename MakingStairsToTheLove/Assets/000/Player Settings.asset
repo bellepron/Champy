@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d22698c180049146a987d703698e904, type: 3}
+  m_Name: Player Settings
+  m_EditorClassIdentifier: 
+  speed: 7
+  stairPutInterval: 0.05
+  stairPuttingTime: 0.1
+  puttedStairScale: {x: 2, y: 0.2, z: 0.4}
+  stairPutingHeigt: 0.35
+  distanceFromCollectedBricks: 0.01
+  alignDistX: 0.3
+  alignDistZ: 0.3
+  alignInterval: 0.1
+  alignTime: 0.5
+  forceToRaggdoll: 100
+  endRunSpeed: 5
+  playerRotationSpeed: 180
+  loverRotationSpeed: 180

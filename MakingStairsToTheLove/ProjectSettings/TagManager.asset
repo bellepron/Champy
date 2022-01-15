@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Missile
   - FxTemporaire
+  - Brick
   layers:
   - Default
   - TransparentFX

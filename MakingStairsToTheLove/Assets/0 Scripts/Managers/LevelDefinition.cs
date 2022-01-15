@@ -5,7 +5,6 @@ public class LevelDefinition : ScriptableObject
     [Header("Player")]
     [Space]
     public float speed;
-    public float swipeSpeed;
 
     [Header("Level Definitions")]
     [Space]

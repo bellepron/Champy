@@ -6,21 +6,47 @@ using UnityEngine.Events;
 
 public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILoseObserver, ILevelEndObserver
 {
+    // [SerializeField] PlayerSettings p_Sets;
     private UnityAction behaviour;
     Animator anim;
     Dreamteck.Splines.SplineFollower splineFollower;
-    public float speed = 5;
     bool updating;
+    bool pressing;
+    public float speed;
 
     [SerializeField] Transform brickBasketTr;
     [SerializeField] List<GameObject> bricks = new List<GameObject>();
     float pushTimer;
-    [SerializeField] float pushCd = 0.05f;
     [SerializeField] LayerMask layerMask;
     [SerializeField] RagdollToggle ragdollToggle;
     public Transform dancePoseHand;
+    Vector3 brickScale;
 
-    bool pressing;
+
+    #region Changeable Values
+    [Header("Brick Collect&Put")]
+    float stairPutInterval = 0.05f;
+    float stairPuttingTime = 0.1f;
+    Vector3 puttedStairScale = new Vector3(2, 0.2f, 0.4f);
+    float stairPutingHeigt = 0.35f;
+    float distanceFromCollectedBricks = 0.01f;
+
+    [Header("Brick Allign")]
+    float alignDistX = 0.3f;
+    float alignDistZ = 0.3f;
+    float alignInterval = 0.1f;
+    float alignTime = 0.5f;
+
+    [Header("End Run")]
+    float endRunSpeed = 5;
+
+    [Header("Dance Pose")]
+    float playerRotationSpeed = 180;
+    float loverRotationSpeed = 180;
+
+    [Header("Ragdoll")]
+    float forceToRaggdoll = 100;
+    #endregion
 
     private void Start()
     {
@@ -38,6 +64,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     {
         splineFollower.followSpeed = speed;
         anim.SetBool("isWalking", true);
+        brickScale = GameObject.FindGameObjectWithTag("Brick").transform.localScale;
 
         behaviour += UseBrick;
         StartCoroutine(MyUpdate());
@@ -68,7 +95,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     public void InteractWithBrick(GameObject brick)
     {
         bricks.Add(brick);
-        Vector3 offset = new Vector3(0, Mathf.FloorToInt((bricks.Count - 1) / 3) * 0.09f, ((bricks.Count - 1) % 3) * -0.19f);
+        Vector3 offset = new Vector3(0, Mathf.FloorToInt((bricks.Count - 1) / 3) * (brickScale.y + distanceFromCollectedBricks), ((bricks.Count - 1) % 3) * -(brickScale.z + distanceFromCollectedBricks));
         brick.transform.parent = brickBasketTr;
         brick.transform.localPosition = offset;
         brick.transform.localEulerAngles = Vector3.zero;
@@ -78,7 +105,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     {
         if (Input.GetMouseButtonDown(0))
         {
-            pushTimer = pushCd;
+            pushTimer = stairPutInterval;
             pressing = true;
         }
         if (Input.GetMouseButton(0))
@@ -87,11 +114,11 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         }
         if (Input.GetMouseButtonUp(0))
         {
-            pushTimer = 0;
+            pushTimer = stairPutInterval;
             pressing = false;
         }
 
-        if (pushTimer < pushCd) return;
+        if (pushTimer < stairPutInterval) return;
 
         pushTimer = 0;
 
@@ -101,12 +128,11 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             bricks.RemoveAt(bricks.Count - 1);
             lastBrickTr.parent = null;
 
-            Vector3 stairScale = new Vector3(2, 0.2f, 0.4f);
-            lastBrickTr.DOScale(stairScale, 0.1f);
-            lastBrickTr.DOMove(transform.position + new Vector3(0, 0.35f, 0), 0.1f);
+            lastBrickTr.DOScale(puttedStairScale, stairPuttingTime);
+            lastBrickTr.DOMove(transform.position + new Vector3(0, stairPutingHeigt, 0), stairPuttingTime);
             lastBrickTr.transform.eulerAngles = splineFollower.transform.eulerAngles;
 
-            transform.DOLocalMoveY(transform.localPosition.y + 0.35f, 0.09f);
+            transform.DOLocalMoveY(transform.localPosition.y + stairPutingHeigt, stairPuttingTime);
         }
         else
             Debug.Log("Ups");
@@ -172,7 +198,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     {
         Stop();
         ragdollToggle.RagdollActivate(true);
-        ragdollToggle.pelvisRb.AddForce(((transform.forward * -1).normalized + new Vector3(0, 1, 0)) * 100, ForceMode.Impulse);
+        ragdollToggle.pelvisRb.AddForce(((transform.forward * -1).normalized + new Vector3(0, 1, 0)) * forceToRaggdoll, ForceMode.Impulse);
 
         Observers.Instance.Notify_LoseObservers();
     }
@@ -204,42 +230,45 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
     IEnumerator Bricks_EndAlign()
     {
         int indexx = 0;
-        float delay = 0.05f;
         Vector3 startPos = transform.position;
-        Vector3 direction = splineFollower.transform.forward;
+        Transform splineF_Tr = splineFollower.transform;
+        Vector3 direction = splineF_Tr.forward;
+        Vector3 splineF_Right = splineF_Tr.right * alignDistX;
+        Vector3 playerDestination = transform.position;
 
         for (int i = bricks.Count - 1; i >= 0; i = i - 2)
         {
             if (i < 1) break;
 
             indexx++;
-            bricks[i].transform.parent = null;
-            bricks[i].transform.DOMove(splineFollower.transform.right * -0.3f + startPos + indexx * direction * 0.3f, 0.5f);
-            bricks[i].transform.DORotate(splineFollower.transform.eulerAngles, 0.5f, RotateMode.FastBeyond360);
-            bricks[i - 1].transform.parent = null;
-            bricks[i - 1].transform.DOMove(splineFollower.transform.right * 0.3f + startPos + indexx * direction * 0.3f, 0.5f);
-            bricks[i - 1].transform.DORotate(splineFollower.transform.eulerAngles, 0.5f, RotateMode.FastBeyond360);
 
-            yield return new WaitForSeconds(delay);
+            if (indexx > 26) break;
+
+            BrickAlingMove(bricks[i], -splineF_Right + startPos + indexx * direction * alignDistZ, splineF_Tr.eulerAngles);
+            BrickAlingMove(bricks[i - 1], splineF_Right + startPos + indexx * direction * alignDistZ, splineF_Tr.eulerAngles);
+
+            yield return new WaitForSeconds(alignInterval);
         }
-        StartCoroutine(LastRun(delay * indexx));
+
+        playerDestination = startPos + indexx * direction * 0.3f;
+        StartCoroutine(LastRun(alignInterval * (indexx - 1), playerDestination));
     }
-    IEnumerator LastRun(float t)
+    void BrickAlingMove(GameObject brick, Vector3 pos, Vector3 eulerAng)
+    {
+        brick.transform.parent = null;
+        brick.transform.DOMove(pos, alignTime);
+        brick.transform.DORotate(eulerAng, alignTime, RotateMode.FastBeyond360);
+    }
+    IEnumerator LastRun(float t, Vector3 playerDestination)
     {
         yield return new WaitForSeconds(t);
-
-        Vector3 targetPos = transform.position;
-        if (bricks.Count > 1)
-        {
-            targetPos = bricks[1].transform.position;
-            anim.SetBool("isWalking", true);
-        }
+        anim.SetBool("isWalking", true);
         GetComponent<Rigidbody>().isKinematic = true;
 
         bool a = true;
         while (a)
         {
-            if (Vector3.Distance(transform.position, targetPos) < 0.5f)
+            if (Vector3.Distance(transform.position, playerDestination) < 0.5f)
             {
                 anim.SetBool("isWalking", false);
 
@@ -247,7 +276,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
                 a = false;
             }
 
-            transform.position += splineFollower.transform.forward * Time.deltaTime * 5;
+            transform.position += splineFollower.transform.forward * Time.deltaTime * endRunSpeed;
 
             yield return null;
         }
@@ -278,8 +307,8 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
 
         while (true)
         {
-            dancePoseHand.transform.parent.transform.Rotate(Vector3.up * 180 * Time.deltaTime, Space.World);
-            transform.Rotate(Vector3.up * 180 * Time.deltaTime, Space.World);
+            dancePoseHand.transform.parent.transform.Rotate(Vector3.up * loverRotationSpeed * Time.deltaTime, Space.World);
+            transform.Rotate(Vector3.up * playerRotationSpeed * Time.deltaTime, Space.World);
 
             yield return null;
         }
