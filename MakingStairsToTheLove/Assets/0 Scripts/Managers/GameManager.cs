@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Dreamteck.Splines;
 using UnityEngine.UI;
 using UnityEngine;
 using DG.Tweening;
@@ -8,8 +9,6 @@ using TMPro;
 
 public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, ILevelEndObserver
 {
-    public static GameManager Instance;
-
     [SerializeField] TextMeshProUGUI levelTMP;
     [SerializeField] GameObject startPanel;
     [SerializeField] GameObject succesPanel;
@@ -23,17 +22,21 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
     [SerializeField] LevelDefinition[] levels;
     int levelIndex;
 
+    // Progress Bar
+    [SerializeField] Slider progressSlider;
+    SplineFollower splineFollower;
+
     // Coroutines
     bool a, b;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
+    bool updating;
 
     #region Game Start Functions
     void Start()
     {
+        Globals.totalPoint = 0;
+        Globals.hasReachTOLover = false;
+        splineFollower = FindObjectOfType<SplineFollower>();
+
         LevelOperations();
         PreparingPanels();
         AddObserver();
@@ -42,7 +45,7 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
 
         // Globals.isLevelEnd = false;
     }
-    
+
     void LevelOperations()
     {
         // PlayerPrefs.SetInt("level", 0);
@@ -56,6 +59,7 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
     {
         int currentIndex = levelIndex % levels.Length;
         GameObject _level = Instantiate(levels[currentIndex].levelPrefab, Vector3.zero, Quaternion.identity);
+        splineFollower.spline = FindObjectOfType<SplineComputer>();
         // InputHandler.Instance.speed = levels[currentIndex].speed;
         // InputHandler.Instance.swipeSpeed = levels[currentIndex].swipeSpeed;
     }
@@ -80,6 +84,8 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
     {
         startPanel.SetActive(false);
         Observers.Instance.Notify_LevelStartObservers();
+
+        StartCoroutine(ProgressBarUpdate());
     }
     #endregion
 
@@ -96,14 +102,38 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
 
     #endregion
 
+    #region Progress Bar
+    IEnumerator ProgressBarUpdate()
+    {
+        updating = true;
+        float finishTime = splineFollower.CalculateLength(0, 1) / 5; // PlayerSpeed 5 TODO:
+        float activeTime = 0;
+
+        while (updating)
+        {
+            activeTime += Time.deltaTime;
+            progressSlider.value = activeTime / finishTime;
+
+            yield return null;
+        }
+    }
+    void CloseProgressBar()
+    {
+        updating = false;
+        progressSlider.gameObject.SetActive(false);
+    }
+    #endregion
+
     public void WinScenario()
     {
         // Confeeties maybe;
+        CloseProgressBar();
     }
 
     public void LoseScenario()
     {
         failPanel.SetActive(true);
+        CloseProgressBar();
     }
 
     public void LevelEnd()
