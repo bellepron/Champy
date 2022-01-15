@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using EZCameraShake;
 
 public class CameraManager : MonoBehaviour, ILevelEndObserver, IWinObserver, ILoseObserver
 {
@@ -33,6 +34,13 @@ public class CameraManager : MonoBehaviour, ILevelEndObserver, IWinObserver, ILo
         cam_1.Priority = 10;
         cam_2.Priority = 20;
     }
+    void LoseCam()
+    {
+        cam_1.Follow = null;
+        cam_1.LookAt = null;
+
+        CameraShaker.Instance.ShakeOnce(3f, 3f, 0.1f, 1f);
+    }
 
     void EndCam()
     {
@@ -49,7 +57,7 @@ public class CameraManager : MonoBehaviour, ILevelEndObserver, IWinObserver, ILo
 
     void ILoseObserver.LoseScenario()
     {
-
+        LoseCam();
     }
 
     void ILevelEndObserver.LevelEnd()
