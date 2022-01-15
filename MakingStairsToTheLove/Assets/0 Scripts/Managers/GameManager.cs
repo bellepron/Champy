@@ -29,6 +29,7 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
     // Coroutines
     bool a, b;
     bool updating;
+    float playerSpeed;
 
     #region Game Start Functions
     void Start()
@@ -60,7 +61,7 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
         int currentIndex = levelIndex % levels.Length;
         GameObject _level = Instantiate(levels[currentIndex].levelPrefab, Vector3.zero, Quaternion.identity);
         splineFollower.spline = FindObjectOfType<SplineComputer>();
-        // InputHandler.Instance.speed = levels[currentIndex].speed;
+        playerSpeed = Player.Instance.speed = levels[currentIndex].speed;
         // InputHandler.Instance.swipeSpeed = levels[currentIndex].swipeSpeed;
     }
     void PreparingPanels()
@@ -106,7 +107,7 @@ public class GameManager : Singleton<GameManager>, IWinObserver, ILoseObserver, 
     IEnumerator ProgressBarUpdate()
     {
         updating = true;
-        float finishTime = splineFollower.CalculateLength(0, 1) / 5; // PlayerSpeed 5 TODO:
+        float finishTime = splineFollower.CalculateLength(0, 1) / playerSpeed;
         float activeTime = 0;
 
         while (updating)
