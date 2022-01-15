@@ -25,9 +25,10 @@ public class PointManager : Singleton<PointManager>, IWinObserver
     public void PointPopUp(Transform targetTr, int addingPoint)
     {
         pointPopUps[pointPopUpIndex].SetActive(true); // Going to false in ColorGradient_UI script
-        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(Camera.main, targetTr.position + new Vector3(0, 2, 2));
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(Camera.main, targetTr.position);
         pointPopUps[pointPopUpIndex].GetComponent<TextMeshProUGUI>().text = "+" + addingPoint.ToString() + "$";
-        pointPopUps[pointPopUpIndex].GetComponent<RectTransform>().anchoredPosition = screenPoint - canvasRectT.sizeDelta / 2f;
+        // pointPopUps[pointPopUpIndex].GetComponent<RectTransform>().anchoredPosition = screenPoint - canvasRectT.sizeDelta / 2f;
+        pointPopUps[pointPopUpIndex].GetComponent<RectTransform>().anchoredPosition = screenPoint - new Vector2(Screen.width / 2f, Screen.height / 2f);
 
         IncreasePopUpIndex();
 
