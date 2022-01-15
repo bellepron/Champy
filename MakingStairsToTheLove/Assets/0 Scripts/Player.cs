@@ -112,6 +112,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             Debug.Log("Ups");
     }
 
+    #region Falling
     IEnumerator MyFixedUpdate()
     {
         while (updating)
@@ -131,9 +132,16 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
         else
         {
             if (pressing == false)
+            {
                 anim.SetBool("isFalling", true);
+            }
             else
-                anim.SetBool("isFalling", false);
+            {
+                if (bricks.Count != 0)
+                    anim.SetBool("isFalling", false);
+                else
+                    anim.SetBool("isFalling", true);
+            }
         }
     }
 
@@ -150,6 +158,7 @@ public class Player : Singleton<Player>, ILevelStartObserver, IWinObserver, ILos
             return false;
         }
     }
+    #endregion
 
     #region Interacts
     public void InteractWithSpike()
